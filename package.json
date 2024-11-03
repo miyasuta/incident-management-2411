@@ -31,18 +31,20 @@
     "requires": {
       "[development]": {
         "auth": {
+          "ams": {
+            "autoCompile": true,
+            "cache": {
+              "TTL": 0
+            }
+          },
           "kind": "mocked",
           "users": {
-            "incident.support@tester.sap.com": {
-              "password": "initial",
-              "roles": ["support"]
-            },
             "alice": {
-              "roles": ["support"]
+              "policies": [
+                "cap.support"
+              ]
             },
-            "bob": {
-              "roles": ["support"]
-            }
+            "bob": {}
           }
         }
       },
