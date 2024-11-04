@@ -9,14 +9,21 @@ modules:
   requires:
   - name: incident-management-2411-db
   - name: incident-management-2411-auth
+    parameters:
+      config:
+         credential-type: "X509_GENERATED"
   provides:
   - name: srv-api
     properties:
       srv-url: ${default-url}
   parameters:
-    buildpack: nodejs_buildpack
+    buildpacks: 
+      - https://github.com/SAP/cloud-authorization-buildpack/releases/latest/download/opa_buildpack.zip
+      - nodejs_buildpack
     readiness-health-check-http-endpoint: /health
     readiness-health-check-type: http
+  properties:
+    AMS_DCL_ROOT: "ams/dcl"  
   build-parameters:
     builder: npm
 - name: incident-management-2411-db-deployer
@@ -36,10 +43,10 @@ modules:
     parameters:
       service-key:
         name: incident-management-2411_html_repo_host-key
-  - name: incident-management-2411-auth
-    parameters:
-      service-key:
-        name: incident-management-2411-auth-key
+  # - name: incident-management-2411-auth
+  #   parameters:
+  #     service-key:
+  #       name: incident-management-2411-auth-key
   parameters:
     content:
       instance:
@@ -48,11 +55,11 @@ modules:
           ServiceInstanceName: incident-management-2411-html5-app-host-service
           ServiceKeyName: incident-management-2411_html_repo_host-key
           sap.cloud.service: incident2411
-        - Authentication: OAuth2UserTokenExchange
-          Name: incident_2411_incident_management_2411_auth
-          ServiceInstanceName: incident-management-2411-auth
-          ServiceKeyName: incident-management-2411-auth-key
-          sap.cloud.service: incident2411
+        # - Authentication: OAuth2UserTokenExchange
+        #   Name: incident_2411_incident_management_2411_auth
+        #   ServiceInstanceName: incident-management-2411-auth
+        #   ServiceKeyName: incident-management-2411-auth-key
+        #   sap.cloud.service: incident2411
         existing_destinations_policy: ignore
   build-parameters:
     no-source: true
@@ -87,14 +94,20 @@ resources:
     service: hana
     service-plan: hdi-shared
 - name: incident-management-2411-auth
-  type: org.cloudfoundry.managed-service
   parameters:
-    config:
-      tenant-mode: dedicated
-      xsappname: incident-management-2411-${org}-${space}
-    path: ./xs-security.json
-    service: xsuaa
+    path: ./ias-config.json
     service-plan: application
+    service: identity
+  type: org.cloudfoundry.managed-service    
+# - name: incident-management-2411-auth
+#   type: org.cloudfoundry.managed-service
+#   parameters:
+#     config:
+#       tenant-mode: dedicated
+#       xsappname: incident-management-2411-${org}-${space}
+#     path: ./xs-security.json
+#     service: xsuaa
+#     service-plan: application
 - name: incident-management-2411-destination-service
   type: org.cloudfoundry.managed-service
   parameters:
@@ -109,6 +122,7 @@ resources:
             Type: HTTP
             URL: https://ui5.sap.com
           - Authentication: NoAuthentication
+            HTML5.IASDependencyName: incidents-api
             HTML5.DynamicDestination: true
             HTML5.ForwardAuthToken: true
             Name: incident-management-2411-srv-api

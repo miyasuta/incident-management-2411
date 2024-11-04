@@ -49,7 +49,7 @@
         }
       },
       "[production]": {
-        "auth": "xsuaa",
+        "auth": "ias",
         "db": "hana"
       }
     },
