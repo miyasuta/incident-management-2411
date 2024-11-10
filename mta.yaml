@@ -26,6 +26,23 @@ modules:
     AMS_DCL_ROOT: "ams/dcl"  
   build-parameters:
     builder: npm
+- name: incident-management-2411-ams-policies-deployer
+  type: javascript.nodejs
+  path: gen/policies
+  parameters:
+    buildpack: nodejs_buildpack
+    no-route: true
+    no-start: true
+    tasks:
+      - name: deploy-dcl
+        command: npm start
+        memory: 512M
+  requires:
+    - name: incident-management-2411-auth
+      parameters:
+        config:
+          credential-type: X509_GENERATED
+          app-identifier: policy-deployer    
 - name: incident-management-2411-db-deployer
   type: hdb
   path: gen/db
