@@ -9,7 +9,6 @@ modules:
     requires:
       - name: incident-management-2411-db
       - name: incident-management-2411-auth
-      - name: incident-management-2411-auth
         parameters:
           config:
             credential-type: X509_GENERATED
@@ -24,6 +23,10 @@ modules:
       readiness-health-check-type: http
     build-parameters:
       builder: npm
+    deployed-after:
+      - incident-management-2411-ams-policies-deployer
+    properties:
+      AMS_DCL_ROOT: ams/dcl
   - name: incident-management-2411-db-deployer
     type: hdb
     path: gen/db
@@ -41,10 +44,10 @@ modules:
         parameters:
           service-key:
             name: incident-management-2411_html_repo_host-key
-      - name: incident-management-2411-auth
-        parameters:
-          service-key:
-            name: incident-management-2411-auth-key
+      # - name: incident-management-2411-auth
+      #   parameters:
+      #     service-key:
+      #       name: incident-management-2411-auth-key
     parameters:
       content:
         instance:
@@ -53,11 +56,11 @@ modules:
               ServiceInstanceName: incident-management-2411-html5-app-host-service
               ServiceKeyName: incident-management-2411_html_repo_host-key
               sap.cloud.service: incident2411
-            - Authentication: OAuth2UserTokenExchange
-              Name: incident_2411_incident_management_2411_auth
-              ServiceInstanceName: incident-management-2411-auth
-              ServiceKeyName: incident-management-2411-auth-key
-              sap.cloud.service: incident2411
+            # - Authentication: OAuth2UserTokenExchange
+            #   Name: incident_2411_incident_management_2411_auth
+            #   ServiceInstanceName: incident-management-2411-auth
+            #   ServiceKeyName: incident-management-2411-auth-key
+            #   sap.cloud.service: incident2411
           existing_destinations_policy: ignore
     build-parameters:
       no-source: true
@@ -86,21 +89,30 @@ modules:
         - npm run build:cf
       supported-platforms:
         []
+
+  - name: incident-management-2411-ams-policies-deployer
+    type: javascript.nodejs
+    path: gen/policies
+    parameters:
+      buildpack: nodejs_buildpack
+      no-route: true
+      no-start: true
+      tasks:
+        - name: deploy-dcl
+          command: npm start
+          memory: 512M
+    requires:
+      - name: incident-management-2411-auth
+        parameters:
+          config:
+            credential-type: X509_GENERATED
+            app-identifier: ams-policy-deployer
 resources:
   - name: incident-management-2411-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
-  - name: incident-management-2411-auth
-    type: org.cloudfoundry.managed-service
-    parameters:
-      config:
-        tenant-mode: dedicated
-        xsappname: incident-management-2411-${org}-${space}
-      path: ./xs-security.json
-      service: xsuaa
-      service-plan: application
   - name: incident-management-2411-destination-service
     type: org.cloudfoundry.managed-service
     parameters:
@@ -143,6 +155,8 @@ resources:
       config:
         display-name: incident-management-2411
         xsuaa-cross-consumption: true
+        authorization:
+          enabled: true
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
