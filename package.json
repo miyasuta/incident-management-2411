@@ -24,7 +24,8 @@
     "start": "cds-serve",
     "watch-incidents2411": "cds watch --open incidents2411/webapp/index.html?sap-ui-xx-viewCache=false",
     "undeploy": "cf undeploy incident-management-2411 --delete-services --delete-service-keys --delete-service-brokers",
-    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "build": "mbt build --mtar archive",
+    "build_bk": "rimraf resources mta_archives && mbt build --mtar archive",
     "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
   },
   "cds": {
