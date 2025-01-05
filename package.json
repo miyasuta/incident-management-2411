@@ -34,13 +34,19 @@
           "users": {
             "incident.support@tester.sap.com": {
               "password": "initial",
-              "roles": ["support"]
+              "roles": [
+                "support"
+              ]
             },
             "alice": {
-              "roles": ["support"]
+              "roles": [
+                "support"
+              ]
             },
             "bob": {
-              "roles": ["support"]
+              "roles": [
+                "support"
+              ]
             }
           }
         }
@@ -48,6 +54,9 @@
       "[production]": {
         "auth": "xsuaa",
         "db": "hana"
+      },
+      "auth": {
+        "kind": "ias"
       }
     },
     "sql": {

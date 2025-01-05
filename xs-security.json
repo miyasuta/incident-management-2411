@@ -6,6 +6,14 @@
     {
       "name": "uaa.user",
       "description": "UAA"
+    },
+    {
+      "name": "$XSAPPNAME.support",
+      "description": "support"
+    },
+    {
+      "name": "$XSAPPNAME.admin",
+      "description": "admin"
     }
   ],
   "role-templates": [
@@ -16,5 +24,6 @@
         "uaa.user"
       ]
     }
-  ]
+  ],
+  "attributes": []
 }

@@ -3,137 +3,152 @@ ID: incident-management-2411
 description: A simple CAP project.
 version: 1.0.0
 modules:
-- name: incident-management-2411-srv
-  type: nodejs
-  path: gen/srv
-  requires:
-  - name: incident-management-2411-db
-  - name: incident-management-2411-auth
-  provides:
-  - name: srv-api
-    properties:
-      srv-url: ${default-url}
-  parameters:
-    buildpack: nodejs_buildpack
-    readiness-health-check-http-endpoint: /health
-    readiness-health-check-type: http
-  build-parameters:
-    builder: npm
-- name: incident-management-2411-db-deployer
-  type: hdb
-  path: gen/db
-  requires:
-  - name: incident-management-2411-db
-  parameters:
-    buildpack: nodejs_buildpack
-- name: incident-management-2411-destination-content
-  type: com.sap.application.content
-  requires:
-  - name: incident-management-2411-destination-service
-    parameters:
-      content-target: true
-  - name: incident-management-2411_html_repo_host
-    parameters:
-      service-key:
-        name: incident-management-2411_html_repo_host-key
-  - name: incident-management-2411-auth
-    parameters:
-      service-key:
-        name: incident-management-2411-auth-key
-  parameters:
-    content:
-      instance:
-        destinations:
-        - Name: incident_2411_incident_management_2411_html_repo_host
-          ServiceInstanceName: incident-management-2411-html5-app-host-service
-          ServiceKeyName: incident-management-2411_html_repo_host-key
-          sap.cloud.service: incident2411
-        - Authentication: OAuth2UserTokenExchange
-          Name: incident_2411_incident_management_2411_auth
-          ServiceInstanceName: incident-management-2411-auth
-          ServiceKeyName: incident-management-2411-auth-key
-          sap.cloud.service: incident2411
-        existing_destinations_policy: ignore
-  build-parameters:
-    no-source: true
-- name: incident-management-2411-app-content
-  type: com.sap.application.content
-  path: .
-  requires:
-  - name: incident-management-2411_html_repo_host
-    parameters:
-      content-target: true
-  build-parameters:
-    build-result: resources
+  - name: incident-management-2411-srv
+    type: nodejs
+    path: gen/srv
     requires:
-    - artifacts:
-      - nsincidents2411.zip
-      name: nsincidents2411
-      target-path: resources/
-- name: nsincidents2411
-  type: html5
-  path: app/incidents2411
-  build-parameters:
-    build-result: dist
-    builder: custom
-    commands:
-    - npm install
-    - npm run build:cf
-    supported-platforms: []
-resources:
-- name: incident-management-2411-db
-  type: com.sap.xs.hdi-container
-  parameters:
-    service: hana
-    service-plan: hdi-shared
-- name: incident-management-2411-auth
-  type: org.cloudfoundry.managed-service
-  parameters:
-    config:
-      tenant-mode: dedicated
-      xsappname: incident-management-2411-${org}-${space}
-    path: ./xs-security.json
-    service: xsuaa
-    service-plan: application
-- name: incident-management-2411-destination-service
-  type: org.cloudfoundry.managed-service
-  parameters:
-    config:
-      HTML5Runtime_enabled: true
-      init_data:
+      - name: incident-management-2411-db
+      - name: incident-management-2411-auth
+      - name: incident-management-2411-auth
+        parameters:
+          config:
+            credential-type: X509_GENERATED
+            app-identifier: srv
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    parameters:
+      buildpack: nodejs_buildpack
+      readiness-health-check-http-endpoint: /health
+      readiness-health-check-type: http
+    build-parameters:
+      builder: npm
+  - name: incident-management-2411-db-deployer
+    type: hdb
+    path: gen/db
+    requires:
+      - name: incident-management-2411-db
+    parameters:
+      buildpack: nodejs_buildpack
+  - name: incident-management-2411-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: incident-management-2411-destination-service
+        parameters:
+          content-target: true
+      - name: incident-management-2411_html_repo_host
+        parameters:
+          service-key:
+            name: incident-management-2411_html_repo_host-key
+      - name: incident-management-2411-auth
+        parameters:
+          service-key:
+            name: incident-management-2411-auth-key
+    parameters:
+      content:
         instance:
           destinations:
-          - Authentication: NoAuthentication
-            Name: ui5
-            ProxyType: Internet
-            Type: HTTP
-            URL: https://ui5.sap.com
-          - Authentication: NoAuthentication
-            HTML5.DynamicDestination: true
-            HTML5.ForwardAuthToken: true
-            Name: incident-management-2411-srv-api
-            ProxyType: Internet
-            Type: HTTP
-            URL: ~{srv-api/srv-url}
-          existing_destinations_policy: update
-      version: 1.0.0
-    service: destination
-    service-name: incident-management-2411-destination-service
-    service-plan: lite
-  requires:
-  - name: srv-api
-- name: incident-management-2411_html_repo_host
-  type: org.cloudfoundry.managed-service
-  parameters:
-    service: html5-apps-repo
-    service-name: incident-management-2411-html5-app-host-service
-    service-plan: app-host
+            - Name: incident_2411_incident_management_2411_html_repo_host
+              ServiceInstanceName: incident-management-2411-html5-app-host-service
+              ServiceKeyName: incident-management-2411_html_repo_host-key
+              sap.cloud.service: incident2411
+            - Authentication: OAuth2UserTokenExchange
+              Name: incident_2411_incident_management_2411_auth
+              ServiceInstanceName: incident-management-2411-auth
+              ServiceKeyName: incident-management-2411-auth-key
+              sap.cloud.service: incident2411
+          existing_destinations_policy: ignore
+    build-parameters:
+      no-source: true
+  - name: incident-management-2411-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: incident-management-2411_html_repo_host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - artifacts:
+            - nsincidents2411.zip
+          name: nsincidents2411
+          target-path: resources/
+  - name: nsincidents2411
+    type: html5
+    path: app/incidents2411
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:cf
+      supported-platforms:
+        []
+resources:
+  - name: incident-management-2411-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+  - name: incident-management-2411-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        tenant-mode: dedicated
+        xsappname: incident-management-2411-${org}-${space}
+      path: ./xs-security.json
+      service: xsuaa
+      service-plan: application
+  - name: incident-management-2411-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        HTML5Runtime_enabled: true
+        init_data:
+          instance:
+            destinations:
+              - Authentication: NoAuthentication
+                Name: ui5
+                ProxyType: Internet
+                Type: HTTP
+                URL: https://ui5.sap.com
+              - Authentication: NoAuthentication
+                HTML5.DynamicDestination: true
+                HTML5.ForwardAuthToken: true
+                Name: incident-management-2411-srv-api
+                ProxyType: Internet
+                Type: HTTP
+                URL: ~{srv-api/srv-url}
+            existing_destinations_policy: update
+        version: 1.0.0
+      service: destination
+      service-name: incident-management-2411-destination-service
+      service-plan: lite
+    requires:
+      - name: srv-api
+  - name: incident-management-2411_html_repo_host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: incident-management-2411-html5-app-host-service
+      service-plan: app-host
+  - name: incident-management-2411-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: identity
+      service-name: incident-management-2411-auth
+      service-plan: application
+      config:
+        display-name: incident-management-2411
+        xsuaa-cross-consumption: true
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-  - builder: custom
-    commands:
-    - npm ci
-    - npx cds build --production
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production
