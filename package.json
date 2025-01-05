@@ -16,7 +16,8 @@
     "@cap-js/sqlite": "^1",
     "@sap/cds-dk": "^8",
     "rimraf": "^5.0.5",
-    "@sap/ux-specification": "UI5-1.130"
+    "@sap/ux-specification": "UI5-1.130",
+    "@sap/ams-dev": "^2"
   },
   "scripts": {
     "start": "cds-serve",
